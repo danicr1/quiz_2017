@@ -187,3 +187,63 @@ exports.check = function (req, res, next) {
         answer: answer
     });
 };
+
+// GET /quizzes/randomplay
+exports.randomplay = function (req, res, next) {
+
+	var score = req.session.score;
+	var usedIds = req.session.usedIds;
+
+	var quizzes = models.Quiz.findAll();
+	var ids = [];
+	for (var quiz in quizzes) {
+			ids.push(quiz.id);
+	}
+
+	function getRandomId(){
+		var randomPos = Math.floor((Math.random() * ids.length) + 1);
+		return ids[randomPos];
+	}
+
+	if (usedIds.length === ids.length) {
+		res.render('quizzes/random_nomore', {
+        	quiz: quiz,
+        	score: score
+    	});
+	}else{
+		var randomId = getRandomId();
+
+		while (usedIds.indexOf(randomId) === -1){
+			randomId = getRandomId();
+		}
+
+		usedIds.push(randomId);
+		var quiz = models.Quiz.findById(randomId);
+    
+    	res.render('quizzes/random_play', {
+        	quiz: quiz,
+        	score: score
+    	});
+	}
+};
+
+// GET /quizzes/randomcheck/:quizId
+exports.randomcheck = function (req, res, next) {
+
+	var score = req.session.score;
+
+	var answer = req.query.answer || "";
+
+    var result = answer.toLowerCase().trim() === req.quiz.answer.toLowerCase().trim();
+
+    if (result) {
+    	score++;
+    }
+    
+    res.render('quizzes/random_result', {
+        quiz: quiz,
+        result: result,
+        answer: answer,
+        score: score
+    });
+};
