@@ -191,57 +191,76 @@ exports.check = function (req, res, next) {
 // GET /quizzes/randomplay
 exports.randomplay = function (req, res, next) {
 
+	req.session.score = req.session.score || 0;
 	var score = req.session.score;
-	var usedIds = req.session.usedIds;
-
-	var quizzes = models.Quiz.findAll();
-	var ids = [];
-	for (var quiz in quizzes) {
-			ids.push(quiz.id);
+	if ("undefined" === typeof req.session.usedIds) {
+		req.session.usedIds = [];
 	}
+
+	var ids = [];
 
 	function getRandomId(){
-		var randomPos = Math.floor((Math.random() * ids.length) + 1);
-		return ids[randomPos];
+			console.log("Dentro Metodo---Array IDs:"+ids);
+			var randomPos = Math.floor(Math.random() * ids.length);
+			console.log("Dentro Metodo---Posaletoria:"+randomPos);
+			return ids[randomPos];
 	}
 
-	if (usedIds.length === ids.length) {
-		res.render('quizzes/random_nomore', {
-        	quiz: quiz,
-        	score: score
-    	});
-	}else{
-		var randomId = getRandomId();
+	models.Quiz.findAll()
+	.then(function (quizzes) {
 
-		while (usedIds.indexOf(randomId) === -1){
-			randomId = getRandomId();
+		for (var i in quizzes) {
+			var quiz = quizzes[i];
+			ids.push(quiz.id);
+			console.log("for---Quiz ID:"+quiz.id);
+			console.log("for---Array IDs:"+ids);
+		}
+		console.log("--- Tamaño rray IDs:"+ids.length);
+		console.log("---Array IDs usadas:"+req.session.usedIds);
+
+		if (req.session.usedIds.length === ids.length) {
+			res.render('quizzes/random_nomore', {
+        		score: score
+    		});
+		}else{
+			var randomId = getRandomId();
+			console.log("antes while---RandomID:"+randomId);
+
+			while (req.session.usedIds.indexOf(randomId) > -1){
+				randomId = getRandomId();
+			}
+			console.log("tras while---RandomID:"+randomId);
+			req.session.usedIds.push(randomId);
+			console.log("final---RandomID:"+randomId);
+			return models.Quiz.findById(randomId);	
 		}
 
-		usedIds.push(randomId);
-		var quiz = models.Quiz.findById(randomId);
-    
+    })
+    .then(function(quiz){
     	res.render('quizzes/random_play', {
-        	quiz: quiz,
-        	score: score
-    	});
-	}
+        		quiz: quiz,
+        		score: score
+    		});
+    })
+    //.catch(function(error){
+
+    //})
+	
 };
 
 // GET /quizzes/randomcheck/:quizId
 exports.randomcheck = function (req, res, next) {
-
-	var score = req.session.score;
 
 	var answer = req.query.answer || "";
 
     var result = answer.toLowerCase().trim() === req.quiz.answer.toLowerCase().trim();
 
     if (result) {
-    	score++;
+    	req.session.score++;
     }
+    var score = req.session.score;
     
     res.render('quizzes/random_result', {
-        quiz: quiz,
         result: result,
         answer: answer,
         score: score
