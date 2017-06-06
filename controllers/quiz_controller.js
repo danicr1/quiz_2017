@@ -222,3 +222,84 @@ exports.check = function (req, res, next) {
         answer: answer
     });
 };
+
+// GET /quizzes/randomplay
+exports.randomplay = function (req, res, next) {
+
+	req.session.score = req.session.score || 0;
+	var score = req.session.score;
+	if ("undefined" === typeof req.session.usedIds) {
+		req.session.usedIds = [];
+	}
+
+	var ids = [];
+
+	function getRandomId(){
+			console.log("Dentro Metodo---Array IDs:"+ids);
+			var randomPos = Math.floor(Math.random() * ids.length);
+			console.log("Dentro Metodo---Posaletoria:"+randomPos);
+			return ids[randomPos];
+	}
+
+	models.Quiz.findAll()
+	.then(function (quizzes) {
+
+		for (var i in quizzes) {
+			var quiz = quizzes[i];
+			ids.push(quiz.id);
+			console.log("for---Quiz ID:"+quiz.id);
+			console.log("for---Array IDs:"+ids);
+		}
+		console.log("--- Tamaño rray IDs:"+ids.length);
+		console.log("---Array IDs usadas:"+req.session.usedIds);
+
+		if (req.session.usedIds.length === ids.length) {
+			res.render('quizzes/random_nomore', {
+        		score: score
+    		});
+		}else{
+			var randomId = getRandomId();
+			console.log("antes while---RandomID:"+randomId);
+
+			while (req.session.usedIds.indexOf(randomId) > -1){
+				randomId = getRandomId();
+			}
+			console.log("tras while---RandomID:"+randomId);
+			req.session.usedIds.push(randomId);
+			console.log("final---RandomID:"+randomId);
+			return models.Quiz.findById(randomId);	
+		}
+
+    })
+    .then(function(quiz){
+    	res.render('quizzes/random_play', {
+        		quiz: quiz,
+        		score: score
+    		});
+    })
+    //.catch(function(error){
+
+    //})
+	
+};
+
+// GET /quizzes/randomcheck/:quizId
+exports.randomcheck = function (req, res, next) {
+
+	req.session.score = req.session.score || 0;
+	
+	var answer = req.query.answer || "";
+
+    var result = answer.toLowerCase().trim() === req.quiz.answer.toLowerCase().trim();
+
+    if (result) {
+    	req.session.score++;
+    }
+    var score = req.session.score;
+    
+    res.render('quizzes/random_result', {
+        result: result,
+        answer: answer,
+        score: score
+    });
+};
