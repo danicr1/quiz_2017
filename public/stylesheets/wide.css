@@ -1,5 +1,5 @@
 body {
-    background: #999;
+    background: black;
 }
 
 #page:after {
@@ -24,6 +24,15 @@ img {
 	width: 25%;
     height: auto;
 	display: block;
+}
+#acierto{
+	color: green;
+	font-weight: bold;
+}
+
+#fallo{
+	color: red;
+	font-weight: bold;
 }
 
 
