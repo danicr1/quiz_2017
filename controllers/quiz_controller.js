@@ -287,15 +287,18 @@ exports.randomplay = function (req, res, next) {
 exports.randomcheck = function (req, res, next) {
 
 	req.session.score = req.session.score || 0;
+	var score = req.session.score;
 	
 	var answer = req.query.answer || "";
 
     var result = answer.toLowerCase().trim() === req.quiz.answer.toLowerCase().trim();
-
+	
     if (result) {
     	req.session.score++;
-    }
-    var score = req.session.score;
+		score = req.session.score;
+    }else{
+		req.session.score = 0;	
+	}
     
     res.render('quizzes/random_result', {
         result: result,
