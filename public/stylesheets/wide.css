@@ -13,12 +13,17 @@ body {
 
 #mainNav a {
     display: block;
-    text-align: left;
+    text-align: center;
 }
 
 #mainSection {
     flex: 1;
     overflow: auto;
+}
+img {
+	width: 25%;
+    height: auto;
+	display: block;
 }
 
 

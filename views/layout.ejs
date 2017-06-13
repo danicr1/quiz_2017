@@ -13,6 +13,7 @@
           type='text/css'
           media='only screen and (max-width: 480px)'
           href='/stylesheets/smartphone.css'/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
 <div id="page">
@@ -21,8 +22,8 @@
 
         <div class="right">
             <% if (!session.user) { %>
-                <a href="/users/new">Registrarse</a>
-                <a href="/session">Login</a>
+                <a href="/users/new"><i class="fa fa-address-card"></i> Registrarse</a>
+                <a href="/session"><i class="fa fa-sign-in"></i> Login</a>
             <% } else { %>
                 <a href="/users/<%= session.user.id %>"><%= session.user.username %></a>
                 <a href="/session?_method=DELETE">Logout</a>
@@ -95,6 +96,14 @@
     </section>
 
     <footer class="main" id="mainFooter">
+	<p id="fecha">
+		<script type="text/javascript">
+			document.write(new Date());
+		</script>
+	</p>
+	<p>Daniel Criado Benítez</p>
+	<a href="https://github.com/danicr1/quiz_2017">GitHub</a><br>
+	<a href="mailto:daniel.criado.benitez@alumnos.upm.es">daniel.criado.benitez@alumnos.upm.es</a><br>
         <a href="http://es.wikipedia.org/wiki/Quiz">
             ¿Qué es un Quiz?</a>
     </footer>
